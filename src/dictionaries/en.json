@@ -1,0 +1,37 @@
+{
+  "home": {
+    "searchPlaceholder": "What are you looking for today?",
+    "all": "All",
+    "scratches": "Scratches",
+    "beds": "Houses & Beds",
+    "care": "Care",
+    "add": "Add",
+    "cart": "My Cart",
+    "checkout": "Checkout",
+    "trustShipping": "Fast & Secure Shipping",
+    "trustPayment": "100% Secure Payment",
+    "trustSupport": "24/7 Customer Support",
+    "heroTitle": "Luxury Comfort for Home Royalty",
+    "heroSub": "Premium wooden designs for your pet's warmth and your home's elegance.",
+    "heroBtn": "Explore Collection",
+    "bestsellers": "This Week's Bestsellers",
+    "promoTitle": "Complete Care Bundle",
+    "promoSub": "Get 15% off the care bundle with any wooden scratcher purchase.",
+    "exploreAll": "Explore All Products",
+    "details": "Product Details",
+    "shippingInfo": "Shipping Info",
+    "color": "Color",
+    "addToCart": "Add to Cart",
+    "inStock": "In Stock"
+  },
+  "footer": {
+    "slogan": "Your Pet's Warm Haven",
+    "rights": "© 2026 Patiyuva E-Commerce. All rights reserved.",
+    "legalTitle": "Legal Information",
+    "sales": "Distance Selling Agreement",
+    "privacy": "Privacy and Security Policy",
+    "refund": "Cancellation and Refund Conditions",
+    "supportTitle": "Customer Service",
+    "ssl": "256-bit SSL Secure Shopping"
+  }
+}

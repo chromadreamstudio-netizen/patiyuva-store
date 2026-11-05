@@ -1,0 +1,37 @@
+{
+  "home": {
+    "searchPlaceholder": "Bugün ne arıyorsunuz?",
+    "all": "Tümü",
+    "scratches": "Tırmalamalar",
+    "beds": "Evler & Yataklar",
+    "care": "Bakım",
+    "add": "Ekle",
+    "cart": "Sepetim",
+    "checkout": "Siparişi Tamamla",
+    "trustShipping": "Hızlı ve Güvenli Kargo",
+    "trustPayment": "%100 Güvenli Ödeme",
+    "trustSupport": "7/24 Müşteri Desteği",
+    "heroTitle": "Evinizin Krallarına Lüks Rahatlık",
+    "heroSub": "Can dostunuza sıcaklık, evinize şıklık katan ahşap tasarımlar.",
+    "heroBtn": "Koleksiyonu Keşfet",
+    "bestsellers": "Haftanın Çok Satanları",
+    "promoTitle": "Tam Kapsamlı Bakım Seti",
+    "promoSub": "Herhangi bir ahşap tırmalama ile bakım seti alımlarında %15 indirim.",
+    "exploreAll": "Tüm Ürünlerimizi İnceleyin",
+    "details": "Ürün Detayları",
+    "shippingInfo": "Teslimat Bilgileri",
+    "color": "Renk",
+    "addToCart": "Sepete Ekle",
+    "inStock": "Stokta Var"
+  },
+  "footer": {
+    "slogan": "Can Dostunuzun Sıcak Yuvası",
+    "rights": "© 2026 Patiyuva E-Ticaret. Tüm hakları saklıdır.",
+    "legalTitle": "Yasal İletişim",
+    "sales": "Mesafeli Satış Sözleşmesi",
+    "privacy": "Gizlilik ve Güvenlik Politikası",
+    "refund": "İptal ve İade Koşulları",
+    "supportTitle": "Müşteri Hizmetleri",
+    "ssl": "256-bit SSL Güvenli Alışveriş"
+  }
+}
