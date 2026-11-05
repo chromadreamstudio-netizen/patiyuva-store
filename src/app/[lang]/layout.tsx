@@ -23,15 +23,12 @@ export function generateStaticParams() {
   return [{ lang: 'tr' }, { lang: 'ar' }, { lang: 'en' }];
 }
 
-export default async function RootLayout({
-  children,
-  params,
-}: {
+export default async function RootLayout(props: {
   children: React.ReactNode;
-  params: Promise<{ lang: 'tr' | 'ar' | 'en' }>;
+  params: Promise<{ lang: string }>;
 }) {
-  const resolvedParams = await params;
-  const lang = resolvedParams.lang;
+  const params = await props.params;
+  const lang = params.lang as 'tr' | 'ar' | 'en';
   const dir = lang === "ar" ? "rtl" : "ltr";
   
   // جلب القاموس بناءً على اللغة
@@ -45,7 +42,7 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col">
-        {children}
+        {props.children}
         {/* تمرير القاموس واللغة لمكون الفوتر ليتعامل مع الروابط بشكل صحيح */}
         <Footer dict={dict} lang={lang} />
       </body>
