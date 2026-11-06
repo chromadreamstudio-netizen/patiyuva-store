@@ -178,7 +178,7 @@ export default function Footer({ dict, lang }: FooterProps) {
         {/* Mandatory iyzico & Credit Card Badges Bar */}
         <div className="mt-10 pt-8 border-t border-slate-800/80 flex flex-col md:flex-row items-center justify-between gap-6">
           <p className="text-xs text-slate-400">
-            © {new Date().getFullYear()} Patiyuva. {t.rights}
+            © 2026 Patiyuva. {t.rights}
           </p>
 
           {/* Payment Logos (SVG Badges - Never break or 404) */}
