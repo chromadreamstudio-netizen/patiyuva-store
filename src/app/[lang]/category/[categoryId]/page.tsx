@@ -10,6 +10,9 @@ export default async function CategoryPage(props: { params: Promise<{ lang: stri
   let query = supabase
     .from('products')
     .select(`id, product_code, selling_price, image_url, category, product_translations!inner(name)`)
+    .eq('is_active', true) // التأكد من أن المنتج نشط
+    .not('image_url', 'is', null) // إخفاء المنتجات التي ليس لها صورة لمنع ظهور مربعات فارغة لمراجعي iyzico
+    .neq('image_url', '') // التأكد من أن الرابط ليس فارغاً
     .eq('product_translations.lang_code', params.lang)
     .order('id', { ascending: true })
 
@@ -18,6 +21,12 @@ export default async function CategoryPage(props: { params: Promise<{ lang: stri
   }
 
   const { data: products } = await query
+
+  // دالة لتنظيف اسم المنتج من أسماء المصنع (Pugalo, Alfie, Windy) واستبدالها بـ Patiyuva لحماية المتجر من المقارنة في ترينديول
+  const cleanName = (name: string) => {
+    if (!name) return '';
+    return name.replace(/pugalo|alfie|windy/gi, 'Patiyuva').trim();
+  };
 
   const dict = {
     ar: { 
@@ -83,7 +92,8 @@ export default async function CategoryPage(props: { params: Promise<{ lang: stri
         {products && products.length > 0 ? (
           <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
             {products.map(product => {
-              const pName = product.product_translations[0]?.name
+              // تنظيف الاسم قبل عرضه
+              const pName = cleanName(product.product_translations[0]?.name)
               return (
                 <Link href={`/${params.lang}/product/${product.id}`} key={product.id} className="group flex flex-col h-full bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden relative">
                   <div className="relative w-full aspect-square bg-gray-50 flex flex-col items-center justify-center p-4">
