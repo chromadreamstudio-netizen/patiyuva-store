@@ -4,7 +4,7 @@ import { useCartStore } from '@/store/useCartStore';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 
-export default function PaymentSuccessPage(props: { params: Promise<{ lang: string }> }) {
+export default function PaymentSuccessPage(props: { params: Promise<{ lang: string }>, searchParams: Promise<{ [key: string]: string | string[] | undefined }> }) {
   const { lang } = use(props.params);
   const searchParams = useSearchParams();
   const orderId = searchParams.get('orderId');
