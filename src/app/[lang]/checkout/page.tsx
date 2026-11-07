@@ -55,15 +55,52 @@ export default function CheckoutPage(props: { params: Promise<{ lang: string }> 
 
   const totalPrice = getTotalPrice();
 
-  // محاكاة الإرسال إلى iyzico (سنربطها بالـ API الحقيقي لاحقاً)
-  const handleSubmit = (e: React.FormEvent) => {
+  // إرسال الطلب الفعلي إلى مسار Shopier API الخاص بنا
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    // TODO: Connect to iyzico backend API here
-    setTimeout(() => {
-      alert(isAr ? 'سيتم تحويلك قريباً لبوابة الدفع (iyzico)' : 'Yakında iyzico ödeme sayfasına yönlendirileceksiniz');
+    
+    try {
+      // 1. إرسال الإجمالي وبيانات العميل إلى مسار الدفع الخاص بنا
+      const response = await fetch('/api/shopier', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          totalPrice: totalPrice,
+          cartItems: items,
+          customerData: formData
+        })
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        // 2. إنشاء نموذج (Form) مخفي في المتصفح وتعبئته ببيانات Shopier لتوجيه العميل
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = data.paymentUrl;
+
+        // إضافة جميع الحقول المشفّرة المطلوبة لنموذج الدفع
+        Object.entries(data.formData).forEach(([key, value]) => {
+          const input = document.createElement('input');
+          input.type = 'hidden';
+          input.name = key;
+          input.value = String(value);
+          form.appendChild(input);
+        });
+
+        // إلحاق النموذج بالصفحة وتقديمه (النقل الفوري لشاشة Shopier)
+        document.body.appendChild(form);
+        form.submit();
+      } else {
+        alert(isAr ? 'حدث خطأ في تجهيز الدفع مع بوابة الدفع. يرجى المحاولة لاحقاً.' : 'Ödeme altyapısı ile bağlantı kurulamadı. Lütfen daha sonra tekrar deneyin.');
+        setIsSubmitting(false);
+      }
+    } catch (error) {
+      console.error('Checkout Error:', error);
+      alert(isAr ? 'تعذر الاتصال بالخادم، يرجى التحقق من اتصالك بالإنترنت.' : 'Sunucuya bağlanılamadı, lütfen internet bağlantınızı kontrol edin.');
       setIsSubmitting(false);
-    }, 2000);
+    }
   };
 
   if (items.length === 0) {
@@ -97,7 +134,7 @@ export default function CheckoutPage(props: { params: Promise<{ lang: string }> 
             <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100">
               <h2 className="text-xl font-bold text-gray-900 mb-6 border-b border-gray-100 pb-4">{t.shipping}</h2>
               
-              <form onSubmit={handleSubmit} className="space-y-5">
+              <form onSubmit={handleSubmit} className="space-y-5" id="checkout-form">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   <div className="space-y-1.5">
                     <label className="text-sm font-bold text-gray-700">{t.name}</label>
@@ -156,10 +193,12 @@ export default function CheckoutPage(props: { params: Promise<{ lang: string }> 
                 </div>
               </div>
 
+              {/* الزر الآن مربوط بالـ Form عبر الـ form attribute */}
               <button 
-                onClick={handleSubmit} 
-                disabled={isSubmitting || !formData.fullName || !formData.phone || !formData.address || !formData.city}
-                className="w-full flex items-center justify-center gap-2 bg-blue-600 text-white font-bold text-lg py-4 rounded-xl hover:bg-blue-700 transition-colors shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                type="submit"
+                form="checkout-form"
+                disabled={isSubmitting || !formData.fullName || !formData.phone || !formData.address || !formData.city || !formData.email}
+                className="w-full flex items-center justify-center gap-2 bg-slate-900 text-white font-bold text-lg py-4 rounded-xl hover:bg-slate-800 transition-colors shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSubmitting ? (
                   <span className="animate-pulse">{t.processing}</span>
@@ -173,7 +212,8 @@ export default function CheckoutPage(props: { params: Promise<{ lang: string }> 
               <div className="mt-4 flex flex-col items-center justify-center gap-3">
                 <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full">{t.secure}</span>
                 <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-black tracking-widest text-blue-800 bg-blue-50 px-2 py-1 rounded border border-blue-100">iyzico</span>
+                  {/* أزلنا لوجو iyzico ووضعنا shopier */}
+                  <span className="text-[10px] font-black tracking-widest text-indigo-800 bg-indigo-50 px-2 py-1 rounded border border-indigo-100">Shopier</span>
                   <span className="text-[10px] font-black tracking-widest text-blue-900 bg-gray-50 px-2 py-1 rounded border border-gray-200">VISA</span>
                   <span className="text-[10px] font-black tracking-widest text-red-600 bg-gray-50 px-2 py-1 rounded border border-gray-200">MasterCard</span>
                 </div>
