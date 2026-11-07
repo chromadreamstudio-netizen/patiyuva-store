@@ -1,12 +1,13 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-// تعريف شكل المنتج داخل السلة
+// تعريف شكل المنتج داخل السلة (أضفنا صورة المنتج لتظهر في السلة)
 export interface CartItem {
   id: string;
   product_code: string;
-  name: string; // الاسم باللغة التي اختارها العميل
+  name: string; 
   price: number;
+  image_url: string; // تم إضافة حقل الصورة هنا
   quantity: number;
 }
 
@@ -72,7 +73,7 @@ export const useCartStore = create<CartState>()(
       },
     }),
     {
-      name: 'pawhub-cart-storage', // اسم الذاكرة المحلية (Local Storage)
+      name: 'patiyuva-cart-storage', // غيّرنا الاسم إلى العلامة التجارية الجديدة ليتم مسح سلة الـ B2B القديمة من متصفحك
     }
   )
 );
