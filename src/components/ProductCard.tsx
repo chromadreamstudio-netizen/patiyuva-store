@@ -16,7 +16,8 @@ export default function ProductCard({ product, dict }: { product: any, dict: any
       id: product.id.toString(),
       product_code: product.product_code,
       name: product.product_translations?.[0]?.name || product.product_code,
-      price: product.selling_price
+      price: product.selling_price,
+      image_url: product.image_url // تم إضافة سطر الصورة هنا لحل المشكلة
     });
   };
 
