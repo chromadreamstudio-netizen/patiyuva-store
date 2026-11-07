@@ -1,13 +1,13 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-// تعريف شكل المنتج داخل السلة (أضفنا صورة المنتج لتظهر في السلة)
+// تعريف شكل المنتج داخل السلة (بما في ذلك الصورة)
 export interface CartItem {
   id: string;
   product_code: string;
   name: string; 
   price: number;
-  image_url: string; // تم إضافة حقل الصورة هنا
+  image_url: string; // حقل الصورة
   quantity: number;
 }
 
@@ -59,7 +59,7 @@ export const useCartStore = create<CartState>()(
         }));
       },
 
-      // دالة تفريغ السلة
+      // دالة تفريغ السلة (تُستخدم بعد الدفع الناجح)
       clearCart: () => set({ items: [] }),
 
       // دالة حساب الإجمالي المالي
@@ -73,7 +73,7 @@ export const useCartStore = create<CartState>()(
       },
     }),
     {
-      name: 'patiyuva-cart-storage', // غيّرنا الاسم إلى العلامة التجارية الجديدة ليتم مسح سلة الـ B2B القديمة من متصفحك
+      name: 'patiyuva-cart-storage', // اسم التخزين المحلي في المتصفح
     }
   )
 );
