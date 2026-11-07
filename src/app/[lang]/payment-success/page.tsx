@@ -1,11 +1,11 @@
 'use client';
-import { useEffect, useState, use } from 'react';
+import { useEffect, useState, use, Suspense } from 'react';
 import { useCartStore } from '@/store/useCartStore';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 
-export default function PaymentSuccessPage(props: { params: Promise<{ lang: string }>, searchParams: Promise<{ [key: string]: string | string[] | undefined }> }) {
-  const { lang } = use(props.params);
+// 1. فصلنا المحتوى الداخلي في مكون منفصل
+function SuccessContent({ lang }: { lang: string }) {
   const searchParams = useSearchParams();
   const orderId = searchParams.get('orderId');
   
@@ -53,5 +53,19 @@ export default function PaymentSuccessPage(props: { params: Promise<{ lang: stri
         </Link>
       </div>
     </div>
+  );
+}
+
+// 2. المكون الأساسي للصفحة يغلف المحتوى بـ Suspense
+export default function PaymentSuccessPage(props: { 
+  params: Promise<{ lang: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
+  const { lang } = use(props.params);
+
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#F8F9FA] flex items-center justify-center text-amber-500 font-bold">...</div>}>
+      <SuccessContent lang={lang} />
+    </Suspense>
   );
 }
