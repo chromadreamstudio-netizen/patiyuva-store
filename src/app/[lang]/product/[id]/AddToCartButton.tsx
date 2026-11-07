@@ -1,5 +1,5 @@
 'use client';
-import { useCartStore } from '@/store/cartStore';
+import { useCartStore } from '@/store/useCartStore';
 import { useState } from 'react';
 
 export default function AddToCartButton({ product, text }: { product: any, text: string }) {
