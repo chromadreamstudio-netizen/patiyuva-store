@@ -20,7 +20,7 @@ export default function CheckoutPage(props: { params: Promise<{ lang: string }> 
     address: ''
   });
 
-  const { items, getTotalPrice } = useCartStore();
+  const { items, getTotalPrice, clearCart } = useCartStore();
 
   useEffect(() => {
     setMounted(true);
@@ -29,24 +29,24 @@ export default function CheckoutPage(props: { params: Promise<{ lang: string }> 
   const dict = {
     ar: { 
       title: 'إتمام الطلب', back: 'العودة للسلة', 
-      shipping: 'بيانات الشحن', name: 'الاسم الكامل', email: 'البريد الإلكتروني', phone: 'رقم الهاتف', 
+      shipping: 'بيانات الشحن', name: 'الاسم الكامل', email: 'البريد الإلكتروني', phone: 'رقم الهاتف (يفضل واتساب)', 
       city: 'المدينة / المحافظة', address: 'العنوان التفصيلي (الشارع، البناء، الشقة)',
-      summary: 'ملخص الطلب', total: 'الإجمالي الكلي', pay: 'ادفع الآن بأمان', processing: 'جاري التحويل للدفع...',
-      empty: 'سلتك فارغة!', shop: 'تسوق الآن', secure: 'دفع آمن ومشفّر 100%'
+      summary: 'ملخص الطلب', total: 'الإجمالي الكلي', pay: 'تأكيد الطلب والدفع', processing: 'جاري تسجيل الطلب...',
+      empty: 'سلتك فارغة!', shop: 'تسوق الآن', secure: 'تواصل مباشر وآمن عبر واتساب'
     },
     tr: { 
       title: 'Ödeme Sayfası', back: 'Sepete Dön', 
-      shipping: 'Teslimat Bilgileri', name: 'Ad Soyad', email: 'E-posta Adresi', phone: 'Telefon Numarası', 
+      shipping: 'Teslimat Bilgileri', name: 'Ad Soyad', email: 'E-posta Adresi', phone: 'Telefon Numarası (WhatsApp)', 
       city: 'İl / İlçe', address: 'Açık Adres (Mahalle, Sokak, Kapı No)',
-      summary: 'Sipariş Özeti', total: 'Genel Toplam', pay: 'Güvenle Öde', processing: 'Ödemeye Yönlendiriliyor...',
-      empty: 'Sepetiniz boş!', shop: 'Alışverişe Başla', secure: '%100 Güvenli Ödeme'
+      summary: 'Sipariş Özeti', total: 'Genel Toplam', pay: 'Siparişi Onayla ve Öde', processing: 'Siparişiniz Alınıyor...',
+      empty: 'Sepetiniz boş!', shop: 'Alışverişe Başla', secure: 'WhatsApp üzerinden güvenli iletişim'
     },
     en: { 
       title: 'Checkout', back: 'Back to Cart', 
-      shipping: 'Shipping Details', name: 'Full Name', email: 'Email Address', phone: 'Phone Number', 
+      shipping: 'Shipping Details', name: 'Full Name', email: 'Email Address', phone: 'Phone Number (WhatsApp)', 
       city: 'City / District', address: 'Full Address (Street, Building, Apt)',
-      summary: 'Order Summary', total: 'Total', pay: 'Pay Securely', processing: 'Processing...',
-      empty: 'Your cart is empty!', shop: 'Shop Now', secure: '100% Secure Checkout'
+      summary: 'Order Summary', total: 'Total', pay: 'Confirm & Pay', processing: 'Processing Order...',
+      empty: 'Your cart is empty!', shop: 'Shop Now', secure: 'Secure direct contact via WhatsApp'
     }
   };
   const t = dict[lang as keyof typeof dict] || dict.ar;
@@ -55,14 +55,14 @@ export default function CheckoutPage(props: { params: Promise<{ lang: string }> 
 
   const totalPrice = getTotalPrice();
 
-  // إرسال الطلب الفعلي إلى مسار Shopier API الخاص بنا
+  // الحل الابتكاري (Hybrid Checkout): حفظ الطلب في Supabase والتحويل للواتساب
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     
     try {
-      // 1. إرسال الإجمالي وبيانات العميل إلى مسار الدفع الخاص بنا
-      const response = await fetch('/api/shopier', {
+      // 1. إرسال الطلب لقاعدة بياناتنا (Supabase)
+      const response = await fetch('/api/orders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -75,30 +75,28 @@ export default function CheckoutPage(props: { params: Promise<{ lang: string }> 
       const data = await response.json();
 
       if (data.success) {
-        // 2. إنشاء نموذج (Form) مخفي في المتصفح وتعبئته ببيانات Shopier لتوجيه العميل
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = data.paymentUrl;
+        // 2. تفريغ السلة بعد نجاح حفظ الطلب
+        clearCart();
+        
+        // 3. تجهيز رسالة الواتساب وتوجيه العميل (رقم متجرك)
+        const storeWhatsappNumber = "905363191820"; 
+        
+        const waMessageAr = `مرحباً باتي يوفا 🐾\nلقد قمت بإتمام طلب جديد على موقعكم.\nالاسم: ${formData.fullName}\nالإجمالي: ${totalPrice} TL\nأرجو إرسال رابط الدفع الآمن لإتمام الشراء.`;
+        const waMessageTr = `Merhaba Patiyuva 🐾\nSitenizden yeni bir sipariş verdim.\nİsim: ${formData.fullName}\nToplam: ${totalPrice} TL\nÖdemeyi tamamlamak için güvenli ödeme linkini gönderir misiniz?`;
+        const waMessageEn = `Hello Patiyuva 🐾\nI have just placed a new order on your website.\nName: ${formData.fullName}\nTotal: ${totalPrice} TL\nPlease send me the secure payment link to complete my purchase.`;
+        
+        const message = isAr ? waMessageAr : (lang === 'tr' ? waMessageTr : waMessageEn);
+        const whatsappUrl = `https://wa.me/${storeWhatsappNumber}?text=${encodeURIComponent(message)}`;
 
-        // إضافة جميع الحقول المشفّرة المطلوبة لنموذج الدفع
-        Object.entries(data.formData).forEach(([key, value]) => {
-          const input = document.createElement('input');
-          input.type = 'hidden';
-          input.name = key;
-          input.value = String(value);
-          form.appendChild(input);
-        });
-
-        // إلحاق النموذج بالصفحة وتقديمه (النقل الفوري لشاشة Shopier)
-        document.body.appendChild(form);
-        form.submit();
+        // توجيه العميل فوراً إلى تطبيق الواتساب
+        window.location.href = whatsappUrl;
       } else {
-        alert(isAr ? 'حدث خطأ في تجهيز الدفع مع بوابة الدفع. يرجى المحاولة لاحقاً.' : 'Ödeme altyapısı ile bağlantı kurulamadı. Lütfen daha sonra tekrar deneyin.');
+        alert(isAr ? 'حدث خطأ في حفظ الطلب، يرجى المحاولة مجدداً.' : 'Sipariş kaydedilirken hata oluştu, lütfen tekrar deneyin.');
         setIsSubmitting(false);
       }
     } catch (error) {
       console.error('Checkout Error:', error);
-      alert(isAr ? 'تعذر الاتصال بالخادم، يرجى التحقق من اتصالك بالإنترنت.' : 'Sunucuya bağlanılamadı, lütfen internet bağlantınızı kontrol edin.');
+      alert(isAr ? 'تأكد من اتصالك بالإنترنت.' : 'İnternet bağlantınızı kontrol edin.');
       setIsSubmitting(false);
     }
   };
@@ -193,29 +191,26 @@ export default function CheckoutPage(props: { params: Promise<{ lang: string }> 
                 </div>
               </div>
 
-              {/* الزر الآن مربوط بالـ Form عبر الـ form attribute */}
               <button 
                 type="submit"
                 form="checkout-form"
                 disabled={isSubmitting || !formData.fullName || !formData.phone || !formData.address || !formData.city || !formData.email}
-                className="w-full flex items-center justify-center gap-2 bg-slate-900 text-white font-bold text-lg py-4 rounded-xl hover:bg-slate-800 transition-colors shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full flex items-center justify-center gap-2 bg-emerald-600 text-white font-bold text-lg py-4 rounded-xl hover:bg-emerald-700 transition-colors shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSubmitting ? (
                   <span className="animate-pulse">{t.processing}</span>
                 ) : (
                   <>
-                    <span>🔒</span> {t.pay}
+                    <span>💬</span> {t.pay}
                   </>
                 )}
               </button>
 
               <div className="mt-4 flex flex-col items-center justify-center gap-3">
-                <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full">{t.secure}</span>
+                <span className="text-xs font-bold text-slate-600 bg-slate-100 px-3 py-1 rounded-full">{t.secure}</span>
                 <div className="flex items-center gap-2">
-                  {/* أزلنا لوجو iyzico ووضعنا shopier */}
-                  <span className="text-[10px] font-black tracking-widest text-indigo-800 bg-indigo-50 px-2 py-1 rounded border border-indigo-100">Shopier</span>
-                  <span className="text-[10px] font-black tracking-widest text-blue-900 bg-gray-50 px-2 py-1 rounded border border-gray-200">VISA</span>
-                  <span className="text-[10px] font-black tracking-widest text-red-600 bg-gray-50 px-2 py-1 rounded border border-gray-200">MasterCard</span>
+                  <span className="text-[10px] font-black tracking-widest text-emerald-800 bg-emerald-50 px-2 py-1 rounded border border-emerald-100">WhatsApp</span>
+                  <span className="text-[10px] font-black tracking-widest text-indigo-800 bg-indigo-50 px-2 py-1 rounded border border-indigo-100">Shopier Link</span>
                 </div>
               </div>
 
