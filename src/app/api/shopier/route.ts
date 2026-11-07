@@ -3,41 +3,76 @@ import crypto from 'crypto';
 
 export async function POST(request: Request) {
   try {
-    // Shopier يرسل البيانات بصيغة Form Data
-    const formData = await request.formData();
+    const body = await request.json();
+    const { totalPrice, cartItems, customerData } = body;
+
+    const SHOPIER_API_KEY = process.env.SHOPIER_API_KEY;
+    const SHOPIER_API_SECRET = process.env.SHOPIER_API_SECRET;
+
+    if (!SHOPIER_API_KEY || !SHOPIER_API_SECRET) {
+      console.error('Shopier keys are missing in environment variables');
+      return NextResponse.json({ success: false, error: 'Server configuration error' }, { status: 500 });
+    }
+
+    // إنشاء رقم طلب فريد
+    const orderId = `ORD-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
     
-    const status = formData.get('status') as string;
-    const order_id = formData.get('order_id') as string;
-    const random_nr = formData.get('random_nr') as string;
-    const signature = formData.get('signature') as string;
+    // تجهيز اسم المنتج (أول 50 حرف لتجنب أخطاء الطول)
+    const productName = cartItems.map((item: any) => item.name).join(', ').substring(0, 50);
+    const firstName = customerData.fullName.split(' ')[0] || 'Customer';
+    const lastName = customerData.fullName.split(' ').slice(1).join(' ') || 'Name';
 
-    const SHOPIER_API_SECRET = process.env.SHOPIER_API_SECRET || '';
+    // المعطيات الإجبارية التي تطلبها بوابة Shopier
+    const args = {
+      API_key: SHOPIER_API_KEY,
+      website_index: 1,
+      platform_order_id: orderId,
+      product_name: productName || 'Patiyuva Order',
+      product_type: 1, // 1 تعني منتج ملموس (فيزيائي)
+      buyer_name: firstName,
+      buyer_surname: lastName,
+      buyer_email: customerData.email,
+      buyer_account_age: 0,
+      buyer_id_nr: 11111111111, // رقم افتراضي لتجاوز شرط الهوية
+      buyer_phone: customerData.phone,
+      billing_address: customerData.address,
+      billing_city: customerData.city,
+      billing_country: 'TR',
+      billing_postcode: '16000',
+      delivery_address: customerData.address,
+      delivery_city: customerData.city,
+      delivery_country: 'TR',
+      delivery_postcode: '16000',
+      total_order_value: totalPrice,
+      currency: 0, // 0 تعني الليرة التركية
+      return_url: 'https://patiyuva-store.vercel.app/api/shopier/callback',
+      cancel_url: 'https://patiyuva-store.vercel.app/ar/cart',
+    };
 
-    // 1. إعادة إنشاء التوقيع للتحقق منه (خوارزمية شوبير: random_nr + order_id)
-    const expectedData = random_nr + order_id;
-    const expectedSignature = crypto
+    // حساب التوقيع المشفر (Signature) لحماية الدفع
+    const random_nr = Math.floor(Math.random() * 1000000).toString();
+    const signatureString = random_nr + args.platform_order_id + args.total_order_value + args.currency;
+    
+    const signature = crypto
       .createHmac('sha256', SHOPIER_API_SECRET)
-      .update(expectedData)
+      .update(signatureString)
       .digest('base64');
 
-    // 2. التحقق من أمان العملية (لمنع عمليات الاحتيال)
-    if (signature !== expectedSignature) {
-      console.error('Invalid signature from Shopier');
-      // توجيه لصفحة السلة مع رسالة خطأ
-      return NextResponse.redirect(new URL('/ar/cart?error=invalid_signature', request.url));
-    }
+    // تجميع البيانات لإعادتها للواجهة
+    const formData = {
+      ...args,
+      signature: signature,
+      random_nr: random_nr,
+    };
 
-    // 3. التحقق من نجاح الدفع
-    if (status === 'success') {
-      // توجيه العميل لصفحة النجاح مع رقم الطلب
-      return NextResponse.redirect(new URL(`/ar/payment-success?orderId=${order_id}`, request.url));
-    } else {
-      // توجيه العميل للسلة في حال فشل الدفع أو تم رفض البطاقة
-      return NextResponse.redirect(new URL('/ar/cart?error=payment_failed', request.url));
-    }
+    return NextResponse.json({
+      success: true,
+      paymentUrl: 'https://shopier.com/ShowProduct/api_pay4.php',
+      formData: formData
+    });
 
   } catch (error) {
-    console.error('Callback error:', error);
-    return NextResponse.redirect(new URL('/ar/cart?error=server_error', request.url));
+    console.error('Shopier API Error:', error);
+    return NextResponse.json({ success: false, error: 'Internal Server Error' }, { status: 500 });
   }
 }
