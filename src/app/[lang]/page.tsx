@@ -105,34 +105,35 @@ export default async function HomePage(props: { params: Promise<{ lang: string }
   return (
     <div className="min-h-screen bg-[#F8F9FA] flex flex-col font-sans" dir={isAr ? 'rtl' : 'ltr'}>
       
-      {/* Navbar */}
+      {/* Navbar - تم التحديث لدعم الموبايل بالشريط القابل للسحب */}
       <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 lg:px-8">
-          <div className="flex justify-between items-center h-20">
+          <div className="flex justify-between items-center h-16 md:h-20">
             <Link href={`/${lang}`} className="flex items-center group">
-              <div className="relative w-32 h-16 md:w-40 flex items-center justify-start overflow-hidden transition-transform group-hover:scale-105">
+              <div className="relative w-28 h-12 md:w-40 md:h-16 flex items-center justify-start overflow-hidden transition-transform group-hover:scale-105">
                 <Image src="/logo.png" alt="Patiyuva Logo" fill sizes="160px" className="object-contain object-left" priority />
               </div>
             </Link>
             
-            <div className="hidden md:flex gap-8 items-center font-bold text-gray-600 text-sm">
-              <Link href={`/${lang}/category/all`} className="hover:text-amber-600 transition-colors">{t.navCats.all}</Link>
-              <Link href={`/${lang}/category/scratches`} className="hover:text-amber-600 transition-colors">{t.navCats.scratches}</Link>
-              <Link href={`/${lang}/category/beds`} className="hover:text-amber-600 transition-colors">{t.navCats.beds}</Link>
-              <Link href={`/${lang}/category/care`} className="hover:text-amber-600 transition-colors">{t.navCats.care}</Link>
-            </div>
-            
-            <div className="flex gap-1.5 md:gap-2 text-xs font-bold bg-gray-100 p-1 rounded-full">
+            <div className="flex gap-1.5 md:gap-2 text-[10px] md:text-xs font-bold bg-gray-100 p-1 rounded-full">
               <Link href="/tr" className={`px-2 md:px-3 py-1.5 rounded-full ${lang === 'tr' ? 'bg-amber-500 text-white' : 'text-gray-500 hover:bg-gray-200'}`}>TR</Link>
               <Link href="/ar" className={`px-2 md:px-3 py-1.5 rounded-full ${lang === 'ar' ? 'bg-amber-500 text-white' : 'text-gray-500 hover:bg-gray-200'}`}>AR</Link>
               <Link href="/en" className={`px-2 md:px-3 py-1.5 rounded-full ${lang === 'en' ? 'bg-amber-500 text-white' : 'text-gray-500 hover:bg-gray-200'}`}>EN</Link>
             </div>
           </div>
+          
+          {/* أزرار الأقسام تظهر تحت اللوجو في الموبايل وقابلة للسحب، وتتوسط النافبار في الكمبيوتر */}
+          <div className="flex overflow-x-auto hide-scrollbar py-2 md:py-0 md:absolute md:top-0 md:left-1/2 md:-translate-x-1/2 md:h-20 items-center gap-6 text-sm font-bold text-gray-600 whitespace-nowrap px-1">
+            <Link href={`/${lang}/category/all`} className="hover:text-amber-600 transition-colors shrink-0">{t.navCats.all}</Link>
+            <Link href={`/${lang}/category/scratches`} className="hover:text-amber-600 transition-colors shrink-0">{t.navCats.scratches}</Link>
+            <Link href={`/${lang}/category/beds`} className="hover:text-amber-600 transition-colors shrink-0">{t.navCats.beds}</Link>
+            <Link href={`/${lang}/category/care`} className="hover:text-amber-600 transition-colors shrink-0">{t.navCats.care}</Link>
+          </div>
         </div>
       </nav>
 
       <main className="flex-grow">
-        {/* 1. Hero Section - مع تعديل اسم الصورة والتظليل الذكي */}
+        {/* 1. Hero Section */}
         <section className="relative w-full h-[60vh] md:h-[75vh] min-h-[450px] flex items-center justify-center overflow-hidden">
           <div className="absolute inset-0 z-0 bg-slate-900">
              <Image 
@@ -142,11 +143,10 @@ export default async function HomePage(props: { params: Promise<{ lang: string }
                 className="object-cover"
                 priority
              />
-             {/* تظليل أسود خفيف جداً لضمان قراءة النص الأبيض دون طمس جمال صورتك */}
              <div className="absolute inset-0 bg-black/40"></div>
           </div>
           
-          <div className="relative z-10 text-center px-4 max-w-4xl mx-auto flex flex-col items-center mt-10 md:mt-0">
+          <div className="relative z-10 text-center px-4 max-w-4xl mx-auto flex flex-col items-center mt-6 md:mt-0">
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-black text-white mb-4 md:mb-6 tracking-tight drop-shadow-xl leading-tight">
               {t.heroTitle}
             </h1>
@@ -159,7 +159,7 @@ export default async function HomePage(props: { params: Promise<{ lang: string }
           </div>
         </section>
 
-        {/* 2. Trust Badges Section - مُعدلة لتناسب الموبايل */}
+        {/* 2. Trust Badges Section */}
         <section className="bg-white border-b border-gray-100 py-6 md:py-8 shadow-md relative z-20 -mt-6 md:-mt-10 mx-4 md:mx-auto max-w-6xl rounded-2xl">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-y-6 gap-x-4 px-2 md:px-4 divide-y divide-gray-50 md:divide-y-0 md:divide-x rtl:md:divide-x-reverse">
             {t.features.map((feat, idx) => (
@@ -210,7 +210,7 @@ export default async function HomePage(props: { params: Promise<{ lang: string }
           )}
         </section>
 
-        {/* 4. FAQ Section - قسم الأسئلة الشائعة */}
+        {/* 4. FAQ Section */}
         <section className="bg-white py-16 md:py-24 border-t border-gray-100">
           <div className="max-w-4xl mx-auto px-4 lg:px-8">
             <div className="text-center mb-10 md:mb-14">
