@@ -9,11 +9,11 @@ export default function AddToCartButton({ product, text }: { product: any, text:
   const handleAdd = () => {
     addItem({
       id: product.id,
-      product_code: product.product_code, // تمت إضافة كود المنتج
+      product_code: product.product_code,
       name: product.name || product.product_code,
       price: product.selling_price,
-      image_url: product.image_url, // الصورة المطلوبة
-      // تم حذف quantity لأن الستور الخاص بك يضيفها تلقائياً (Omit<CartItem, 'quantity'>)
+      image_url: product.image_url,
+      quantity: 1,
     });
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
