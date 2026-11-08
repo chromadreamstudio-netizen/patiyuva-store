@@ -1,19 +1,18 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-// تعريف شكل المنتج داخل السلة (بما في ذلك الصورة)
 export interface CartItem {
   id: string;
-  product_code: string;
-  name: string; 
+  name: string;
   price: number;
-  image_url: string; // حقل الصورة
   quantity: number;
+  image_url?: string;
+  product_code?: string; 
 }
 
-interface CartState {
+interface CartStore {
   items: CartItem[];
-  addItem: (item: Omit<CartItem, 'quantity'>) => void;
+  addItem: (item: CartItem) => void;
   removeItem: (id: string) => void;
   updateQuantity: (id: string, quantity: number) => void;
   clearCart: () => void;
@@ -21,59 +20,52 @@ interface CartState {
   getTotalItems: () => number;
 }
 
-export const useCartStore = create<CartState>()(
+export const useCartStore = create<CartStore>()(
   persist(
     (set, get) => ({
       items: [],
       
-      // دالة إضافة منتج للسلة (إذا كان موجوداً تزيد الكمية)
-      addItem: (newItem) => {
-        set((state) => {
-          const existingItem = state.items.find((item) => item.id === newItem.id);
-          if (existingItem) {
-            return {
-              items: state.items.map((item) =>
-                item.id === newItem.id
-                  ? { ...item, quantity: item.quantity + 1 }
-                  : item
-              ),
-            };
-          }
-          return { items: [...state.items, { ...newItem, quantity: 1 }] };
+      addItem: (item) => {
+        const { items } = get();
+        const existingItem = items.find((i) => i.id === item.id);
+        
+        if (existingItem) {
+          set({
+            items: items.map((i) => 
+              i.id === item.id ? { ...i, quantity: i.quantity + item.quantity } : i
+            )
+          });
+        } else {
+          set({ items: [...items, item] });
+        }
+      },
+      
+      removeItem: (id) => {
+        set({ items: get().items.filter((i) => i.id !== id) });
+      },
+      
+      updateQuantity: (id, quantity) => {
+        set({
+          items: get().items.map((i) => 
+            i.id === id ? { ...i, quantity } : i
+          )
         });
       },
-
-      // دالة حذف منتج بالكامل من السلة
-      removeItem: (id) => {
-        set((state) => ({
-          items: state.items.filter((item) => item.id !== id),
-        }));
+      
+      clearCart: () => {
+        set({ items: [] });
       },
-
-      // دالة تعديل الكمية (الزائد والناقص)
-      updateQuantity: (id, quantity) => {
-        set((state) => ({
-          items: state.items.map((item) =>
-            item.id === id ? { ...item, quantity: Math.max(1, quantity) } : item
-          ),
-        }));
-      },
-
-      // دالة تفريغ السلة (تُستخدم بعد الدفع الناجح)
-      clearCart: () => set({ items: [] }),
-
-      // دالة حساب الإجمالي المالي
+      
       getTotalPrice: () => {
-        return get().items.reduce((total, item) => total + item.price * item.quantity, 0);
+        return get().items.reduce((total, item) => total + (item.price * item.quantity), 0);
       },
 
-      // دالة حساب عدد القطع الكلي
       getTotalItems: () => {
         return get().items.reduce((total, item) => total + item.quantity, 0);
-      },
+      }
     }),
     {
-      name: 'patiyuva-cart-storage', // اسم التخزين المحلي في المتصفح
+      name: 'patiyuva-cart',
     }
   )
 );

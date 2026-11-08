@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
-// تهيئة الاتصال بقاعدة بيانات Supabase
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 const supabase = createClient(supabaseUrl, supabaseKey);
@@ -11,7 +10,6 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { customerData, cartItems, totalPrice } = body;
 
-    // إدخال البيانات في جدول orders
     const { data, error } = await supabase
       .from('orders')
       .insert([
@@ -29,7 +27,6 @@ export async function POST(request: Request) {
       .select();
 
     if (error) throw error;
-
     return NextResponse.json({ success: true, orderId: data[0].id });
   } catch (error) {
     console.error('Error saving order:', error);

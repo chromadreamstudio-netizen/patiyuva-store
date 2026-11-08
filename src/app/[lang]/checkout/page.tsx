@@ -11,7 +11,6 @@ export default function CheckoutPage(props: { params: Promise<{ lang: string }> 
   const [mounted, setMounted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   
-  // بيانات العميل
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -55,13 +54,11 @@ export default function CheckoutPage(props: { params: Promise<{ lang: string }> 
 
   const totalPrice = getTotalPrice();
 
-  // الحل الابتكاري (Hybrid Checkout): حفظ الطلب في Supabase والتحويل للواتساب
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     
     try {
-      // 1. إرسال الطلب لقاعدة بياناتنا (Supabase)
       const response = await fetch('/api/orders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -75,10 +72,8 @@ export default function CheckoutPage(props: { params: Promise<{ lang: string }> 
       const data = await response.json();
 
       if (data.success) {
-        // 2. تفريغ السلة بعد نجاح حفظ الطلب
         clearCart();
         
-        // 3. تجهيز رسالة الواتساب وتوجيه العميل (رقم متجرك)
         const storeWhatsappNumber = "905363191820"; 
         
         const waMessageAr = `مرحباً باتي يوفا 🐾\nلقد قمت بإتمام طلب جديد على موقعكم.\nالاسم: ${formData.fullName}\nالإجمالي: ${totalPrice} TL\nأرجو إرسال رابط الدفع الآمن لإتمام الشراء.`;
@@ -88,7 +83,6 @@ export default function CheckoutPage(props: { params: Promise<{ lang: string }> 
         const message = isAr ? waMessageAr : (lang === 'tr' ? waMessageTr : waMessageEn);
         const whatsappUrl = `https://wa.me/${storeWhatsappNumber}?text=${encodeURIComponent(message)}`;
 
-        // توجيه العميل فوراً إلى تطبيق الواتساب
         window.location.href = whatsappUrl;
       } else {
         alert(isAr ? 'حدث خطأ في حفظ الطلب، يرجى المحاولة مجدداً.' : 'Sipariş kaydedilirken hata oluştu, lütfen tekrar deneyin.');
@@ -126,8 +120,6 @@ export default function CheckoutPage(props: { params: Promise<{ lang: string }> 
         <h1 className="text-2xl md:text-4xl font-black text-gray-900 mb-8 md:mb-10">{t.title}</h1>
 
         <div className="flex flex-col lg:flex-row gap-8">
-          
-          {/* 1. نموذج بيانات الشحن (Form) */}
           <div className="w-full lg:w-2/3">
             <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100">
               <h2 className="text-xl font-bold text-gray-900 mb-6 border-b border-gray-100 pb-4">{t.shipping}</h2>
@@ -163,12 +155,10 @@ export default function CheckoutPage(props: { params: Promise<{ lang: string }> 
             </div>
           </div>
 
-          {/* 2. ملخص الطلب وزر الدفع */}
           <div className="w-full lg:w-1/3">
             <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100 lg:sticky lg:top-28">
               <h3 className="text-xl font-black text-gray-900 mb-6">{t.summary}</h3>
               
-              {/* قائمة المنتجات المصغرة */}
               <div className="space-y-4 mb-6 max-h-60 overflow-y-auto pr-2 rtl:pr-0 rtl:pl-2">
                 {items.map(item => (
                   <div key={item.id} className="flex items-center gap-3">
@@ -213,10 +203,8 @@ export default function CheckoutPage(props: { params: Promise<{ lang: string }> 
                   <span className="text-[10px] font-black tracking-widest text-indigo-800 bg-indigo-50 px-2 py-1 rounded border border-indigo-100">Shopier Link</span>
                 </div>
               </div>
-
             </div>
           </div>
-
         </div>
       </div>
     </div>

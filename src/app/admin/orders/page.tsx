@@ -2,7 +2,6 @@
 import { useEffect, useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-// تهيئة الاتصال بقاعدة بيانات Supabase
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 const supabase = createClient(supabaseUrl, supabaseKey);
@@ -11,7 +10,6 @@ export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // جلب الطلبات عند تحميل الصفحة
   useEffect(() => {
     fetchOrders();
   }, []);
@@ -21,7 +19,7 @@ export default function AdminOrdersPage() {
       const { data, error } = await supabase
         .from('orders')
         .select('*')
-        .order('created_at', { ascending: false }); // ترتيب من الأحدث للأقدم
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
       if (data) setOrders(data);
@@ -32,7 +30,6 @@ export default function AdminOrdersPage() {
     }
   };
 
-  // دالة لتغيير حالة الطلب (مثلاً: من معلق إلى تم الدفع)
   const updateOrderStatus = async (orderId: string, newStatus: string) => {
     try {
       const { error } = await supabase
@@ -41,7 +38,6 @@ export default function AdminOrdersPage() {
         .eq('id', orderId);
 
       if (error) throw error;
-      // تحديث القائمة بعد التغيير
       fetchOrders();
     } catch (error) {
       console.error('Error updating order status:', error);
@@ -97,10 +93,17 @@ export default function AdminOrdersPage() {
                         <div className="text-xs max-w-xs leading-relaxed">{order.shipping_address}</div>
                       </td>
                       <td className="px-6 py-4">
-                        <ul className="text-xs text-slate-600 space-y-1">
+                        <ul className="text-xs text-slate-600 space-y-2">
                           {order.order_items?.map((item: any, idx: number) => (
-                            <li key={idx} className="line-clamp-1">
-                              • {item.name} <span className="font-bold">(x{item.quantity})</span>
+                            <li key={idx} className="flex flex-col gap-1">
+                              <div className="line-clamp-2 leading-relaxed">
+                                • {item.name} <span className="font-bold text-slate-900 mx-1">(x{item.quantity})</span>
+                              </div>
+                              {item.product_code && (
+                                <div className="text-indigo-600 font-bold bg-indigo-50 px-2 py-1 rounded w-max mr-3 rtl:mr-3 rtl:ml-0" dir="ltr">
+                                  SKU: {item.product_code}
+                                </div>
+                              )}
                             </li>
                           ))}
                         </ul>

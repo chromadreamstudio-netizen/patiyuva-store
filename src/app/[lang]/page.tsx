@@ -102,7 +102,6 @@ export default async function HomePage(props: { params: Promise<{ lang: string }
   return (
     <div className="min-h-screen bg-[#F8F9FA] flex flex-col font-sans relative" dir={isAr ? 'rtl' : 'ltr'}>
       <main className="flex-grow">
-        {/* 1. Hero Section */}
         <section className="relative w-full h-[60vh] md:h-[75vh] min-h-[450px] flex items-center justify-center overflow-hidden">
           <div className="absolute inset-0 z-0 bg-slate-900">
              <Image 
@@ -128,7 +127,6 @@ export default async function HomePage(props: { params: Promise<{ lang: string }
           </div>
         </section>
 
-        {/* 2. Trust Badges Section */}
         <section className="bg-white border-b border-gray-100 py-6 md:py-8 shadow-md relative z-20 -mt-6 md:-mt-10 mx-4 md:mx-auto max-w-6xl rounded-2xl">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-y-6 gap-x-4 px-2 md:px-4 divide-y divide-gray-50 md:divide-y-0 md:divide-x rtl:md:divide-x-reverse">
             {t.features.map((feat, idx) => (
@@ -141,7 +139,6 @@ export default async function HomePage(props: { params: Promise<{ lang: string }
           </div>
         </section>
 
-        {/* 3. Best Sellers Section */}
         <section className="max-w-7xl mx-auto px-4 lg:px-8 py-16 md:py-24">
           <div className="text-center mb-10 md:mb-14">
              <h2 className="text-3xl md:text-4xl lg:text-5xl font-black text-gray-900">{t.bestSellers}</h2>
@@ -179,7 +176,6 @@ export default async function HomePage(props: { params: Promise<{ lang: string }
           )}
         </section>
 
-        {/* 4. FAQ Section */}
         <section className="bg-white py-16 md:py-24 border-t border-gray-100">
           <div className="max-w-4xl mx-auto px-4 lg:px-8">
             <div className="text-center mb-10 md:mb-14">
@@ -204,7 +200,7 @@ export default async function HomePage(props: { params: Promise<{ lang: string }
         </section>
       </main>
 
-      {/* الزر السري للوحة الإدارة (مخفي تماماً في الزاوية السفلية اليسرى) */}
+      {/* الزر السري للوحة الإدارة */}
       <Link 
         href="/admin/orders" 
         className="fixed bottom-0 left-0 w-16 h-16 opacity-0 z-[100] cursor-default"
