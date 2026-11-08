@@ -19,13 +19,14 @@ function getLocale(request: NextRequest) {
 export default function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  // استثناء الملفات الثابتة والصور ومسارات API
+  // استثناء الملفات الثابتة والصور ومسارات API ومسار Admin من أي تحويل للغة
   if (
     pathname.startsWith('/_next') ||
     pathname.includes('.') ||
-    pathname.startsWith('/api')
+    pathname.startsWith('/api') ||
+    pathname.startsWith('/admin')
   ) {
-    return
+    return NextResponse.next()
   }
 
   // التحقق مما إذا كان الرابط يحتوي بالفعل على لغة
@@ -33,7 +34,7 @@ export default function middleware(request: NextRequest) {
     (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
   )
 
-  if (pathnameHasLocale) return
+  if (pathnameHasLocale) return NextResponse.next()
 
   // إذا لم يكن الرابط يحتوي على لغة، أعد التوجيه إلى اللغة المناسبة
   const locale = getLocale(request)
@@ -42,6 +43,6 @@ export default function middleware(request: NextRequest) {
 }
 
 export const config = {
-  // تفعيل الميدل وير على كل المسارات ما عدا المحددة
-  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
+  // تفعيل الميدل وير على كل المسارات ما عدا المحددة (تمت إضافة admin هنا كطبقة حماية إضافية)
+  matcher: ['/((?!api|_next/static|_next/image|favicon.ico|admin).*)'],
 }

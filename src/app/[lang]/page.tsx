@@ -100,7 +100,7 @@ export default async function HomePage(props: { params: Promise<{ lang: string }
   const t = dict[lang as keyof typeof dict] || dict.ar;
 
   return (
-    <div className="min-h-screen bg-[#F8F9FA] flex flex-col font-sans" dir={isAr ? 'rtl' : 'ltr'}>
+    <div className="min-h-screen bg-[#F8F9FA] flex flex-col font-sans relative" dir={isAr ? 'rtl' : 'ltr'}>
       <main className="flex-grow">
         {/* 1. Hero Section */}
         <section className="relative w-full h-[60vh] md:h-[75vh] min-h-[450px] flex items-center justify-center overflow-hidden">
@@ -202,8 +202,14 @@ export default async function HomePage(props: { params: Promise<{ lang: string }
             </div>
           </div>
         </section>
-
       </main>
+
+      {/* الزر السري للوحة الإدارة (مخفي تماماً في الزاوية السفلية اليسرى) */}
+      <Link 
+        href="/admin/orders" 
+        className="fixed bottom-0 left-0 w-16 h-16 opacity-0 z-[100] cursor-default"
+        title="." 
+      />
     </div>
   )
 }
