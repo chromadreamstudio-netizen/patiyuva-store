@@ -1,5 +1,5 @@
-import '../globals.css'; // هذا هو السطر السحري الذي سيعيد التصميم!
 'use client';
+import '@/app/globals.css'; 
 import { ReactNode, useState, useEffect } from 'react';
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
