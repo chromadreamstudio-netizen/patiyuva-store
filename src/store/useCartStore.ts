@@ -8,6 +8,7 @@ export interface CartItem {
   quantity: number;
   image_url?: string;
   product_code?: string; 
+  shopier_url?: string | null; // السطر الجديد الذي يحل المشكلة
 }
 
 interface CartStore {
