@@ -31,21 +31,21 @@ export default function CheckoutPage(props: { params: Promise<{ lang: string }> 
       shipping: 'بيانات الشحن', name: 'الاسم الكامل', email: 'البريد الإلكتروني', phone: 'رقم الهاتف (يفضل واتساب)', 
       city: 'المدينة / المحافظة', address: 'العنوان التفصيلي (الشارع، البناء، الشقة)',
       summary: 'ملخص الطلب', total: 'الإجمالي الكلي', pay: 'تأكيد الطلب والدفع', processing: 'جاري تسجيل الطلب...',
-      empty: 'سلتك فارغة!', shop: 'تسوق الآن', secure: 'تواصل مباشر وآمن عبر واتساب'
+      empty: 'سلتك فارغة!', shop: 'تسوق الآن', secure: 'تواصل مباشر وآمن عبر واتساب', color: 'اللون'
     },
     tr: { 
       title: 'Ödeme Sayfası', back: 'Sepete Dön', 
       shipping: 'Teslimat Bilgileri', name: 'Ad Soyad', email: 'E-posta Adresi', phone: 'Telefon Numarası (WhatsApp)', 
       city: 'İl / İlçe', address: 'Açık Adres (Mahalle, Sokak, Kapı No)',
       summary: 'Sipariş Özeti', total: 'Genel Toplam', pay: 'Siparişi Onayla ve Öde', processing: 'Siparişiniz Alınıyor...',
-      empty: 'Sepetiniz boş!', shop: 'Alışverişe Başla', secure: 'WhatsApp üzerinden güvenli iletişim'
+      empty: 'Sepetiniz boş!', shop: 'Alışverişe Başla', secure: 'WhatsApp üzerinden güvenli iletişim', color: 'Renk'
     },
     en: { 
       title: 'Checkout', back: 'Back to Cart', 
       shipping: 'Shipping Details', name: 'Full Name', email: 'Email Address', phone: 'Phone Number (WhatsApp)', 
       city: 'City / District', address: 'Full Address (Street, Building, Apt)',
       summary: 'Order Summary', total: 'Total', pay: 'Confirm & Pay', processing: 'Processing Order...',
-      empty: 'Your cart is empty!', shop: 'Shop Now', secure: 'Secure direct contact via WhatsApp'
+      empty: 'Your cart is empty!', shop: 'Shop Now', secure: 'Secure direct contact via WhatsApp', color: 'Color'
     }
   };
   const t = dict[lang as keyof typeof dict] || dict.ar;
@@ -76,9 +76,14 @@ export default function CheckoutPage(props: { params: Promise<{ lang: string }> 
         
         const storeWhatsappNumber = "905363191820"; 
         
-        const waMessageAr = `مرحباً باتي يوفا 🐾\nلقد قمت بإتمام طلب جديد على موقعكم.\nالاسم: ${formData.fullName}\nالإجمالي: ${totalPrice} TL\nأرجو إرسال رابط الدفع الآمن لإتمام الشراء.`;
-        const waMessageTr = `Merhaba Patiyuva 🐾\nSitenizden yeni bir sipariş verdim.\nİsim: ${formData.fullName}\nToplam: ${totalPrice} TL\nÖdemeyi tamamlamak için güvenli ödeme linkini gönderir misiniz?`;
-        const waMessageEn = `Hello Patiyuva 🐾\nI have just placed a new order on your website.\nName: ${formData.fullName}\nTotal: ${totalPrice} TL\nPlease send me the secure payment link to complete my purchase.`;
+        // بناء قائمة المنتجات لتظهر في رسالة الواتساب بشكل منظم
+        const orderItemsList = items.map(item => 
+          `- ${item.name} (Qty: ${item.quantity})${item.selected_color ? ` [Color: ${item.selected_color}]` : ''}`
+        ).join('\n');
+        
+        const waMessageAr = `مرحباً باتي يوفا 🐾\nلقد قمت بإتمام طلب جديد على موقعكم.\nالاسم: ${formData.fullName}\n\nالمنتجات:\n${orderItemsList}\n\nالإجمالي: ${totalPrice} TL\nأرجو إرسال رابط الدفع المجمع لإتمام الشراء.`;
+        const waMessageTr = `Merhaba Patiyuva 🐾\nSitenizden yeni bir sipariş verdim.\nİsim: ${formData.fullName}\n\nÜrünler:\n${orderItemsList}\n\nToplam: ${totalPrice} TL\nÖdemeyi tamamlamak için güvenli ödeme linkini gönderir misiniz?`;
+        const waMessageEn = `Hello Patiyuva 🐾\nI have just placed a new order on your website.\nName: ${formData.fullName}\n\nItems:\n${orderItemsList}\n\nTotal: ${totalPrice} TL\nPlease send me the secure payment link to complete my purchase.`;
         
         const message = isAr ? waMessageAr : (lang === 'tr' ? waMessageTr : waMessageEn);
         const whatsappUrl = `https://wa.me/${storeWhatsappNumber}?text=${encodeURIComponent(message)}`;
@@ -161,13 +166,16 @@ export default function CheckoutPage(props: { params: Promise<{ lang: string }> 
               
               <div className="space-y-4 mb-6 max-h-60 overflow-y-auto pr-2 rtl:pr-0 rtl:pl-2">
                 {items.map(item => (
-                  <div key={item.id} className="flex items-center gap-3">
+                  <div key={item.cart_id || item.id} className="flex items-center gap-3">
                     <div className="w-12 h-12 relative rounded-lg overflow-hidden bg-gray-50 border border-gray-100 shrink-0">
                       {item.image_url ? <Image src={item.image_url} alt={item.name} fill className="object-cover" /> : null}
                     </div>
                     <div className="flex-grow">
                       <h4 className="text-xs font-bold text-gray-800 line-clamp-1">{item.name}</h4>
-                      <div className="text-xs text-gray-500 font-medium mt-0.5">Qty: {item.quantity}</div>
+                      <div className="text-xs text-gray-500 font-medium mt-0.5">
+                        Qty: {item.quantity} 
+                        {item.selected_color && <span className="mx-1 font-bold text-amber-700">| {t.color}: {item.selected_color}</span>}
+                      </div>
                     </div>
                     <div className="text-sm font-black text-gray-900 shrink-0">{item.price * item.quantity} TL</div>
                   </div>

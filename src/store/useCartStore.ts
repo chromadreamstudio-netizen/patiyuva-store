@@ -2,20 +2,22 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 export interface CartItem {
-  id: string;
+  id: string; // معرف المنتج في قاعدة البيانات
+  cart_id?: string; // معرف فريد داخل السلة (يدمج المنتج مع اللون)
   name: string;
   price: number;
   quantity: number;
   image_url?: string;
   product_code?: string; 
-  shopier_url?: string | null; // السطر الجديد الذي يحل المشكلة
+  shopier_url?: string | null;
+  selected_color?: string; // لحفظ اللون الذي اختاره العميل
 }
 
 interface CartStore {
   items: CartItem[];
   addItem: (item: CartItem) => void;
-  removeItem: (id: string) => void;
-  updateQuantity: (id: string, quantity: number) => void;
+  removeItem: (cart_id: string) => void;
+  updateQuantity: (cart_id: string, quantity: number) => void;
   clearCart: () => void;
   getTotalPrice: () => number;
   getTotalItems: () => number;
@@ -28,27 +30,31 @@ export const useCartStore = create<CartStore>()(
       
       addItem: (item) => {
         const { items } = get();
-        const existingItem = items.find((i) => i.id === item.id);
+        // إنشاء معرف فريد للسلة حتى لو كان نفس المنتج بألوان مختلفة
+        const uniqueCartId = item.selected_color ? `${item.id}-${item.selected_color}` : item.id;
+        const itemWithCartId = { ...item, cart_id: uniqueCartId };
+
+        const existingItem = items.find((i) => i.cart_id === uniqueCartId);
         
         if (existingItem) {
           set({
             items: items.map((i) => 
-              i.id === item.id ? { ...i, quantity: i.quantity + item.quantity } : i
+              i.cart_id === uniqueCartId ? { ...i, quantity: i.quantity + item.quantity } : i
             )
           });
         } else {
-          set({ items: [...items, item] });
+          set({ items: [...items, itemWithCartId] });
         }
       },
       
-      removeItem: (id) => {
-        set({ items: get().items.filter((i) => i.id !== id) });
+      removeItem: (cart_id) => {
+        set({ items: get().items.filter((i) => i.cart_id !== cart_id && i.id !== cart_id) });
       },
       
-      updateQuantity: (id, quantity) => {
+      updateQuantity: (cart_id, quantity) => {
         set({
           items: get().items.map((i) => 
-            i.id === id ? { ...i, quantity } : i
+            (i.cart_id === cart_id || i.id === cart_id) ? { ...i, quantity } : i
           )
         });
       },

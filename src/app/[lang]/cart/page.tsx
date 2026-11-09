@@ -6,7 +6,6 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState, use } from 'react';
 
-// تهيئة الاتصال المباشر مع Supabase لجلب رابط شوبير المضمون
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://vrlzwerbusixmjqwzgmm.supabase.co';
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZybHp3ZXJidXNpeG1qcXd6Z21tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM1MzE4NjksImV4cCI6MjEwOTEwNzg2OX0.YqgFoSxwZy3RcJkg7URP1-yShaDovAJichmN3F-5fmY';
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
@@ -25,13 +24,12 @@ export default function CartPage(props: { params: Promise<{ lang: string }> }) {
   }, []);
 
   const dict = {
-    ar: { title: 'سلة المشتريات', empty: 'سلتك فارغة حالياً.', shop: 'العودة للتسوق', price: 'السعر', qty: 'الكمية', total: 'الإجمالي', summary: 'ملخص الطلب', subtotal: 'المجموع الفرعي', shipping: 'الشحن', free: 'مجاني', finalTotal: 'الإجمالي الكلي', checkout: 'إتمام الطلب', remove: 'إزالة', processing: 'جاري التحويل للدفع الآمن...' },
-    tr: { title: 'Alışveriş Sepeti', empty: 'Sepetiniz şu an boş.', shop: 'Alışverişe Dön', price: 'Fiyat', qty: 'Adet', total: 'Toplam', summary: 'Sipariş Özeti', subtotal: 'Ara Toplam', shipping: 'Kargo', free: 'Ücretsiz', finalTotal: 'Genel Toplam', checkout: 'Ödemeye Geç', remove: 'Kaldır', processing: 'Güvenli Ödemeye Yönlendiriliyor...' },
-    en: { title: 'Shopping Cart', empty: 'Your cart is currently empty.', shop: 'Continue Shopping', price: 'Price', qty: 'Quantity', total: 'Total', summary: 'Order Summary', subtotal: 'Subtotal', shipping: 'Shipping', free: 'Free', finalTotal: 'Total', checkout: 'Proceed to Checkout', remove: 'Remove', processing: 'Redirecting to Secure Payment...' }
+    ar: { title: 'سلة المشتريات', empty: 'سلتك فارغة حالياً.', shop: 'العودة للتسوق', price: 'السعر', qty: 'الكمية', total: 'الإجمالي', summary: 'ملخص الطلب', subtotal: 'المجموع الفرعي', shipping: 'الشحن', free: 'مجاني', finalTotal: 'الإجمالي الكلي', checkout: 'إتمام الطلب', remove: 'إزالة', processing: 'جاري التحويل للدفع الآمن...', color: 'اللون' },
+    tr: { title: 'Alışveriş Sepeti', empty: 'Sepetiniz şu an boş.', shop: 'Alışverişe Dön', price: 'Fiyat', qty: 'Adet', total: 'Toplam', summary: 'Sipariş Özeti', subtotal: 'Ara Toplam', shipping: 'Kargo', free: 'Ücretsiz', finalTotal: 'Genel Toplam', checkout: 'Ödemeye Geç', remove: 'Kaldır', processing: 'Güvenli Ödemeye Yönlendiriliyor...', color: 'Renk' },
+    en: { title: 'Shopping Cart', empty: 'Your cart is currently empty.', shop: 'Continue Shopping', price: 'Price', qty: 'Quantity', total: 'Total', summary: 'Order Summary', subtotal: 'Subtotal', shipping: 'Shipping', free: 'Free', finalTotal: 'Total', checkout: 'Proceed to Checkout', remove: 'Remove', processing: 'Redirecting...', color: 'Color' }
   };
   const t = dict[lang as keyof typeof dict] || dict.ar;
 
-  // دالة لتنسيق رابط شوبير والتأكد من وجود https://
   const formatShopierUrl = (url: string) => {
     const cleanUrl = url.trim();
     if (cleanUrl.startsWith('http://') || cleanUrl.startsWith('https://')) {
@@ -40,20 +38,16 @@ export default function CartPage(props: { params: Promise<{ lang: string }> }) {
     return `https://${cleanUrl}`;
   };
 
-  // دالة الدفع الذكية التي تجلب الرابط مباشرة من قاعدة البيانات
   const handleCheckout = async () => {
     setIsProcessing(true);
 
     try {
-      // إذا كان في السلة منتج واحد فقط (بكمية 1)
       if (items.length === 1 && items[0].quantity === 1) {
         const singleItem = items[0];
         let targetUrl = singleItem.shopier_url;
 
-        // إذا لم يكن الرابط محفوظاً في السلة، نجلبه فوراً من جدول products في Supabase
         if (!targetUrl) {
           let query = supabase.from('products').select('shopier_url');
-          
           if (singleItem.product_code) {
             query = query.eq('product_code', singleItem.product_code);
           } else {
@@ -66,14 +60,12 @@ export default function CartPage(props: { params: Promise<{ lang: string }> }) {
           }
         }
 
-        // إذا وجدنا الرابط، نحول العميل مباشرة إلى صفحة الدفع في Shopier
         if (targetUrl) {
           window.location.href = formatShopierUrl(targetUrl);
           return;
         }
       }
 
-      // إذا كان هناك أكثر من منتج أو كمية أكبر من 1، يتم التحويل لصفحة إتمام الطلب المجمع
       router.push(`/${lang}/checkout`);
     } catch (err) {
       console.error('Checkout redirect error:', err);
@@ -101,12 +93,11 @@ export default function CartPage(props: { params: Promise<{ lang: string }> }) {
         ) : (
           <div className="flex flex-col lg:flex-row gap-8">
             
-            {/* 1. قائمة المنتجات */}
             <div className="w-full lg:w-2/3 space-y-4">
               {items.map((item) => (
-                <div key={item.id} className="flex flex-col sm:flex-row items-center gap-4 md:gap-6 bg-white p-4 md:p-5 rounded-2xl shadow-sm border border-gray-100 relative group transition-all hover:shadow-md">
+                <div key={item.cart_id || item.id} className="flex flex-col sm:flex-row items-center gap-4 md:gap-6 bg-white p-4 md:p-5 rounded-2xl shadow-sm border border-gray-100 relative group transition-all hover:shadow-md">
                   
-                  <button onClick={() => removeItem(item.id)} className={`absolute top-4 ${isAr ? 'left-4' : 'right-4'} text-gray-300 hover:text-red-500 transition-colors bg-gray-50 hover:bg-red-50 p-2 rounded-full`} title={t.remove}>
+                  <button onClick={() => removeItem(item.cart_id || item.id)} className={`absolute top-4 ${isAr ? 'left-4' : 'right-4'} text-gray-300 hover:text-red-500 transition-colors bg-gray-50 hover:bg-red-50 p-2 rounded-full`} title={t.remove}>
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                     </svg>
@@ -124,13 +115,22 @@ export default function CartPage(props: { params: Promise<{ lang: string }> }) {
                     <Link href={`/${lang}/product/${item.id}`} className="text-base md:text-lg font-bold text-gray-800 hover:text-amber-600 line-clamp-2 pr-10 rtl:pr-0 rtl:pl-10 mb-1 transition-colors">
                       {item.name}
                     </Link>
-                    <span className="text-xs font-bold text-gray-400 mb-4 bg-gray-50 inline-block w-fit px-2 py-0.5 rounded">{item.product_code}</span>
+                    
+                    {/* إضافة ظهور اللون في سلة المشتريات بشكل أنيق */}
+                    <div className="flex items-center gap-2 mb-4">
+                      <span className="text-xs font-bold text-gray-400 bg-gray-50 inline-block px-2 py-0.5 rounded">{item.product_code}</span>
+                      {item.selected_color && (
+                        <span className="text-xs font-bold text-amber-700 bg-amber-50 border border-amber-100 inline-block px-2 py-0.5 rounded">
+                          {t.color}: {item.selected_color}
+                        </span>
+                      )}
+                    </div>
                     
                     <div className="flex items-center justify-between w-full mt-auto">
                       <div className="flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-lg p-1 shadow-inner">
-                        <button onClick={() => updateQuantity(item.id, item.quantity - 1)} className="w-8 h-8 flex items-center justify-center text-gray-600 hover:bg-white hover:text-amber-600 rounded shadow-sm transition-all font-bold" disabled={item.quantity <= 1}>-</button>
+                        <button onClick={() => updateQuantity(item.cart_id || item.id, item.quantity - 1)} className="w-8 h-8 flex items-center justify-center text-gray-600 hover:bg-white hover:text-amber-600 rounded shadow-sm transition-all font-bold" disabled={item.quantity <= 1}>-</button>
                         <span className="font-bold text-gray-900 w-6 text-center">{item.quantity}</span>
-                        <button onClick={() => updateQuantity(item.id, item.quantity + 1)} className="w-8 h-8 flex items-center justify-center text-gray-600 hover:bg-white hover:text-amber-600 rounded shadow-sm transition-all font-bold">+</button>
+                        <button onClick={() => updateQuantity(item.cart_id || item.id, item.quantity + 1)} className="w-8 h-8 flex items-center justify-center text-gray-600 hover:bg-white hover:text-amber-600 rounded shadow-sm transition-all font-bold">+</button>
                       </div>
                       
                       <div className="text-xl md:text-2xl font-black text-gray-900">
@@ -142,7 +142,6 @@ export default function CartPage(props: { params: Promise<{ lang: string }> }) {
               ))}
             </div>
 
-            {/* 2. ملخص الطلب */}
             <div className="w-full lg:w-1/3">
               <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100 lg:sticky lg:top-28">
                 <h3 className="text-xl font-black text-gray-900 mb-6">{t.summary}</h3>
