@@ -1,8 +1,8 @@
 'use client';
 import { useCartStore } from '@/store/useCartStore';
 import { useState } from 'react';
+import { useRouter, useParams } from 'next/navigation';
 
-// تعريف الأنواع (Types) لتناسب التحديث الجديد
 interface ProductData {
   id: string;
   name: string;
@@ -10,7 +10,7 @@ interface ProductData {
   image_url?: string;
   product_code: string;
   shopier_url?: string;
-  colors?: string; // الألوان المخزنة في قاعدة البيانات (مثال: "Krem, Gri, Antrasit")
+  colors?: string;
 }
 
 interface AddToCartButtonProps {
@@ -18,32 +18,34 @@ interface AddToCartButtonProps {
   text: string;
 }
 
-// خريطة الألوان لربط اسم اللون بكود HEX ليظهر كدائرة ملونة حقيقية
 const colorMap: Record<string, string> = {
-  'Krem': '#F5F5DC',      // بيج/كريمي
-  'Gri': '#808080',       // رمادي
-  'Antrasit': '#383E42',  // رصاصي غامق / أنثراسيت
-  'Pembe': '#FFC0CB',     // وردي
-  'Yeşil': '#8FBC8F',     // أخضر فاتح
-  'Siyah': '#000000',     // أسود
-  'Beyaz': '#FFFFFF',     // أبيض
-  'Mavi': '#4682B4'       // أزرق
+  'Krem': '#F5F5DC',
+  'Gri': '#808080',
+  'Antrasit': '#383E42',
+  'Pembe': '#FFC0CB',
+  'Yeşil': '#8FBC8F',
+  'Siyah': '#000000',
+  'Beyaz': '#FFFFFF',
+  'Mavi': '#4682B4'
 };
 
 export default function AddToCartButton({ product, text }: AddToCartButtonProps) {
   const addItem = useCartStore((state) => state.addItem);
+  const router = useRouter();
+  const params = useParams();
+  const lang = params?.lang || 'tr';
+  
   const [isAdded, setIsAdded] = useState(false);
   const [errorText, setErrorText] = useState('');
 
-  // استخراج الألوان من المنتج، أو توفير الألوان الخمسة المطلوبة للتجربة إذا لم توجد
-  const rawColors = product.colors || 'Krem, Gri, Antrasit, Pembe, Yeşil'; 
+  // إزالة الألوان التجريبية. الآن يقرأ الألوان من قاعدة البيانات فقط (إن وجدت)
+  const rawColors = product.colors || ''; 
   const availableColors = rawColors.split(',').map(c => c.trim()).filter(Boolean);
   
-  // حالة (State) لحفظ اللون الذي اختاره العميل
   const [selectedColor, setSelectedColor] = useState<string>('');
 
   const handleAdd = () => {
-    // التحقق من اختيار اللون قبل الإضافة
+    // التحقق الإجباري من اللون (فقط للمنتجات التي تمتلك ألواناً في قاعدة البيانات)
     if (availableColors.length > 0 && !selectedColor) {
       setErrorText('يرجى اختيار لون المنتج أولاً / Lütfen önce bir renk seçin');
       return;
@@ -59,16 +61,17 @@ export default function AddToCartButton({ product, text }: AddToCartButtonProps)
       image_url: product.image_url,
       product_code: product.product_code,
       shopier_url: product.shopier_url,
-      selected_color: selectedColor // إرسال اللون المختار للسلة
+      selected_color: selectedColor
     });
 
     setIsAdded(true);
-    setTimeout(() => setIsAdded(false), 2000);
+    
+    // توجيه العميل فوراً إلى صفحة السلة بعد الإضافة
+    router.push(`/${lang}/cart`);
   };
 
   return (
     <div className="flex flex-col gap-4">
-      {/* 1. قسم اختيار الألوان (التصميم الدائري الجديد) */}
       {availableColors.length > 0 && (
         <div className="flex flex-col gap-3 mb-2">
           <label className="text-sm font-bold text-gray-700">
@@ -76,7 +79,7 @@ export default function AddToCartButton({ product, text }: AddToCartButtonProps)
           </label>
           <div className="flex flex-wrap gap-3">
             {availableColors.map((colorName) => {
-              const hexColor = colorMap[colorName] || '#E5E7EB'; // لون رمادي فاتح كافتراضي إذا لم يكن في الخريطة
+              const hexColor = colorMap[colorName] || '#E5E7EB';
               const isSelected = selectedColor === colorName;
               
               return (
@@ -93,7 +96,6 @@ export default function AddToCartButton({ product, text }: AddToCartButtonProps)
                   style={{ backgroundColor: hexColor }}
                   aria-label={colorName}
                 >
-                  {/* علامة صح تظهر فوق اللون الفاتح/الأبيض إذا تم اختياره */}
                   {isSelected && (
                     <span className={`absolute inset-0 flex items-center justify-center text-sm font-bold ${['Krem', 'Beyaz', 'Sarı'].includes(colorName) ? 'text-gray-800' : 'text-white'}`}>
                       ✓
@@ -107,7 +109,6 @@ export default function AddToCartButton({ product, text }: AddToCartButtonProps)
         </div>
       )}
 
-      {/* 2. زر الإضافة للسلة */}
       <button
         onClick={handleAdd}
         className={`w-full font-bold text-lg py-4 rounded-xl transition-all shadow-md mt-2 ${
@@ -116,7 +117,7 @@ export default function AddToCartButton({ product, text }: AddToCartButtonProps)
             : 'bg-slate-900 text-white hover:bg-slate-800'
         }`}
       >
-        {isAdded ? '✓ تمت الإضافة / Eklendi' : text}
+        {isAdded ? '✓ جاري التحويل... / Yönlendiriliyor...' : text}
       </button>
     </div>
   );
