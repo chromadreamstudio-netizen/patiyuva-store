@@ -18,6 +18,7 @@ interface AddToCartButtonProps {
   text: string;
 }
 
+// خريطة الألوان المحدثة شاملة جميع الألوان الجديدة في الكتالوج
 const colorMap: Record<string, string> = {
   'Krem': '#F5F5DC',
   'Gri': '#808080',
@@ -26,7 +27,13 @@ const colorMap: Record<string, string> = {
   'Yeşil': '#8FBC8F',
   'Siyah': '#000000',
   'Beyaz': '#FFFFFF',
-  'Mavi': '#4682B4'
+  'Mavi': '#4682B4',
+  'Hardal': '#DAA520',         
+  'Kahve': '#6F4E37',          
+  'Sütlü Kahve': '#C19A6B',    
+  'Bej': '#F5F5DC',            
+  'Sarı': '#FFD700',           
+  'Kırmızı': '#FF0000'         
 };
 
 export default function AddToCartButton({ product, text }: AddToCartButtonProps) {
@@ -38,14 +45,12 @@ export default function AddToCartButton({ product, text }: AddToCartButtonProps)
   const [isAdded, setIsAdded] = useState(false);
   const [errorText, setErrorText] = useState('');
 
-  // إزالة الألوان التجريبية. الآن يقرأ الألوان من قاعدة البيانات فقط (إن وجدت)
   const rawColors = product.colors || ''; 
   const availableColors = rawColors.split(',').map(c => c.trim()).filter(Boolean);
   
   const [selectedColor, setSelectedColor] = useState<string>('');
 
   const handleAdd = () => {
-    // التحقق الإجباري من اللون (فقط للمنتجات التي تمتلك ألواناً في قاعدة البيانات)
     if (availableColors.length > 0 && !selectedColor) {
       setErrorText('يرجى اختيار لون المنتج أولاً / Lütfen önce bir renk seçin');
       return;
@@ -65,8 +70,6 @@ export default function AddToCartButton({ product, text }: AddToCartButtonProps)
     });
 
     setIsAdded(true);
-    
-    // توجيه العميل فوراً إلى صفحة السلة بعد الإضافة
     router.push(`/${lang}/cart`);
   };
 
@@ -97,7 +100,7 @@ export default function AddToCartButton({ product, text }: AddToCartButtonProps)
                   aria-label={colorName}
                 >
                   {isSelected && (
-                    <span className={`absolute inset-0 flex items-center justify-center text-sm font-bold ${['Krem', 'Beyaz', 'Sarı'].includes(colorName) ? 'text-gray-800' : 'text-white'}`}>
+                    <span className={`absolute inset-0 flex items-center justify-center text-sm font-bold ${['Krem', 'Beyaz', 'Sarı', 'Bej'].includes(colorName) ? 'text-gray-800' : 'text-white'}`}>
                       ✓
                     </span>
                   )}
