@@ -3,11 +3,12 @@
 import { supabase } from '@/lib/supabase'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useEffect, useState, use } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 
-export default function HomePage(props: { params: Promise<{ lang: string }> }) {
-  const { lang } = use(props.params);
+export default function HomePage({ params }: { params: { lang: string } }) {
+  // قراءة اللغة مباشرة من الـ params بدون استخدام use() التي تسبب مشاكل
+  const lang = params?.lang || 'tr';
   const isAr = lang === 'ar';
   const router = useRouter();
   
@@ -48,15 +49,15 @@ export default function HomePage(props: { params: Promise<{ lang: string }> }) {
     return name.replace(/pugalo|alfie|windy/gi, 'Patiyuva').trim();
   };
 
-  // الزر السري بكلمة مرور
   const handleAdminClick = (e: React.MouseEvent) => {
     e.preventDefault();
-    const password = window.prompt("Lütfen yönetici şifresini girin:");
+    const password = window.prompt("Lütfen yönetici şifresini girin / برجاء إدخال كلمة المرور:");
     
+    // كلمة المرور للإدارة
     if (password === "Patiyuva2026") {
       router.push('/admin/orders');
     } else if (password !== null && password !== "") {
-      alert("Şifre yanlış / Password incorrect 🚫");
+      alert("Şifre yanlış / كلمة المرور خاطئة 🚫");
     }
   };
 
@@ -80,15 +81,17 @@ export default function HomePage(props: { params: Promise<{ lang: string }> }) {
       experience: { title: 'Sadece Mobilya Değil.. Bir Yaşam Tarzı', desc: 'Her Patiyuva parçası, kediniz için mükemmel bir sığınak sunarken modern ev dekorunuzla uyum içinde tasarlanmıştır.' }
     },
     en: { 
-      heroTitle: 'Redefining Luxury for Your Pet.',
-      heroSub: 'Handcrafted designs combining Turkish elegance with absolute comfort.',
-      cta: 'Shop New Collection',
+      heroTitle: 'Redefine luxury for your beloved pet.',
+      heroSub: 'Handcrafted designs that combine Turkish elegance and absolute comfort.',
+      cta: 'Shop the New Collection',
       bestSellers: 'Most Wanted Masterpieces',
       shopNow: 'Discover',
       categories: { title: 'Shop By Category', beds: 'Luxury Beds', scratchers: 'Scratching Trees', care: 'Care & Health' },
       experience: { title: 'Not Just Furniture.. A Lifestyle', desc: 'Every Patiyuva piece is designed to blend harmoniously with your modern home decor while providing the perfect sanctuary for your cat.' }
     }
   }
+  
+  // التأكد من تطبيق اللغة التركية كخيار افتراضي في حال حدوث أي خطأ
   const t = dict[lang as keyof typeof dict] || dict.tr;
 
   return (
@@ -105,7 +108,6 @@ export default function HomePage(props: { params: Promise<{ lang: string }> }) {
 
       <main className="flex-grow">
         
-        {/* إصلاح صورة البانر للموبايل: object-top للموبايل، object-center للكمبيوتر */}
         <section className="relative w-full h-[70vh] md:h-[85vh] min-h-[500px] flex items-center justify-center bg-gray-100 overflow-hidden">
           <div className="absolute inset-0 z-0">
              <Image 

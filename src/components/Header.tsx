@@ -12,14 +12,12 @@ export default function Header() {
   const currentLang = pathname?.split('/')[1] || 'tr';
   const cartItems = useCartStore((state) => state.items);
   
-  // حالة لفتح وإغلاق قائمة الموبايل
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  // دالة تغيير اللغة
   const switchLanguage = (lang: string) => {
     const newPath = pathname.replace(`/${currentLang}`, `/${lang}`);
     router.push(newPath);
-    setIsMobileMenuOpen(false); // إغلاق القائمة بعد تغيير اللغة
+    setIsMobileMenuOpen(false); 
   };
 
   const dict = {
@@ -39,16 +37,17 @@ export default function Header() {
   return (
     <header className="bg-white border-b border-gray-100 sticky top-0 z-50 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* جعلنا العناصر تتوزع بشكل مريح (space-between) بدون تداخل */}
         <div className="flex justify-between items-center h-20">
           
-          {/* Logo */}
+          {/* الشعار */}
           <div className="flex-shrink-0 flex items-center">
             <Link href={`/${currentLang}`}>
-              <Image src="/logo.png" alt="Patiyuva Logo" width={140} height={50} className="w-auto h-10 md:h-12" priority />
+              <Image src="/logo.png" alt="Patiyuva Logo" width={120} height={40} className="w-auto h-8 md:h-12" priority />
             </Link>
           </div>
 
-          {/* Desktop Navigation */}
+          {/* روابط الديسكتوب (تختفي في الموبايل) */}
           <nav className="hidden md:flex space-x-8 rtl:space-x-reverse">
             {navLinks.map((link) => (
               <Link key={link.name} href={link.href} className="text-sm font-bold text-gray-700 hover:text-amber-500 transition-colors">
@@ -57,10 +56,10 @@ export default function Header() {
             ))}
           </nav>
 
-          {/* Icons & Language (Desktop & Mobile) */}
-          <div className="flex items-center gap-4 md:gap-6">
+          {/* أدوات الهيدر */}
+          <div className="flex items-center gap-3 md:gap-6">
             
-            {/* Language Switcher - Desktop */}
+            {/* اختيار اللغة - يظهر فقط في الديسكتوب لمنع الزحام */}
             <div className="hidden md:flex bg-gray-100 rounded-full p-1">
               {['tr', 'ar', 'en'].map((lang) => (
                 <button
@@ -73,7 +72,7 @@ export default function Header() {
               ))}
             </div>
 
-            {/* Cart Icon */}
+            {/* أيقونة السلة - تظهر دائماً */}
             <Link href={`/${currentLang}/cart`} className="relative p-2 text-gray-700 hover:text-amber-500 transition-colors">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -85,7 +84,7 @@ export default function Header() {
               )}
             </Link>
 
-            {/* Mobile Hamburger Button */}
+            {/* زر القائمة الجانبية للموبايل */}
             <button 
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="md:hidden p-2 text-gray-700 focus:outline-none"
@@ -102,12 +101,13 @@ export default function Header() {
         </div>
       </div>
 
-      {/* Mobile Menu Dropdown */}
+      {/* قائمة الموبايل المنسدلة */}
       {isMobileMenuOpen && (
-        <div className="md:hidden bg-white border-t border-gray-100 absolute w-full shadow-lg">
-          <div className="px-4 pt-2 pb-6 space-y-4">
+        <div className="md:hidden bg-white border-t border-gray-100 absolute w-full shadow-lg z-50">
+          <div className="px-4 pt-4 pb-6 space-y-4">
             
-            {/* Mobile Language Switcher */}
+            {/* أزرار اللغة نُقلت هنا لسهولة الوصول في الموبايل */}
+            <p className="text-xs font-bold text-gray-400 text-center mb-2">Dil Seçimi / اختر اللغة</p>
             <div className="flex justify-center bg-gray-50 rounded-lg p-2 mb-4">
               {['tr', 'ar', 'en'].map((lang) => (
                 <button
@@ -120,7 +120,7 @@ export default function Header() {
               ))}
             </div>
 
-            {/* Mobile Navigation Links */}
+            {/* روابط الأقسام */}
             <div className="flex flex-col space-y-3">
               {navLinks.map((link) => (
                 <Link 
