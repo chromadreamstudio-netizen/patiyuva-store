@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import Script from "next/script"; // <-- تم استدعاء مكون السكربت من Next.js
+import Script from "next/script";
 import "../globals.css";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
@@ -9,9 +9,13 @@ import { getDictionary } from "../../lib/dictionaries";
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 
+// تم إضافة كود التوثيق الخاص بـ Pinterest هنا بنجاح
 export const metadata: Metadata = {
   title: "Patiyuva",
   description: "Premium Pet Products",
+  other: {
+    "p:domain_verify": "de5b52625f84e2feeea4e5074d0e5769",
+  },
 };
 
 export function generateStaticParams() {
@@ -31,7 +35,7 @@ export default async function RootLayout(props: {
   return (
     <html lang={lang} dir={dir} className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`} suppressHydrationWarning>
       <body className="min-h-full flex flex-col">
-        {/* النافبار الآن يعمل في كل الصفحات بشكل عالمي */}
+        {/* النافبار يعمل في كل الصفحات بشكل عالمي */}
         <Navbar lang={lang} />
         
         {props.children}
